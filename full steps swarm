@@ -1,0 +1,45 @@
+Provision the Infrastructure :
+Open your terminal and create your project folder: 
+mkdir ~/docker-swarm-vms && cd ~/docker-swarm-vms
+Create the Vagrantfile using the 3-node configuration provided earlier.
+Run vagrant up to boot manager-vm, worker1-vm, and worker2-vm.
+
+Configure the Docker Swarm Cluster :
+SSH into the manager: vagrant ssh manager-vm.
+Install Docker: sudo apt update && sudo apt install -y docker.io 
+(add the vagrant user to the docker group).
+Initialize the Swarm: docker swarm init --advertise-addr 192.168.56.10.
+Copy the generated docker swarm join --token... command.
+SSH into worker1-vm and worker2-vm, install Docker, and paste the join command in each.
+
+Develop the Simple Java Application :
+Create a new directory for your app: mkdir ~/simple-java-app && cd ~/simple-java-app.
+Create the src/main/java/com/example/App.java file (using the simple ServerSocket on port 9090).
+Create the simplified pom.xml to build the JAR.
+Create the Dockerfile that builds the Maven project and exposes port 9090.
+Create the Jenkinsfile (ensuring you update IMAGE_NAME with your Docker Hub username).
+
+Push Code to GitHub : 
+Initialize Git in your simple-java-app folder: git init.
+Add and commit all files: git add . && git commit -m "Initial commit".
+Link it to your GitHub repository and push: git remote add origin <URL> then git push -u origin main.
+
+Prepare Jenkins and Docker Hub : 
+Generate a Docker Hub Access Token from your Docker Hub account settings.
+On the manager VM, start Jenkins:
+docker run -p 8080:8080 -p 50000:50000 -d -v jenkins_home:/var/jenkins_home -v /var/run/docker.sock:/var/run/docker.sock --name jenkins jenkins/jenkins:lts
+
+Fix Jenkins permissions so it can build images: run sudo chmod 666 /var/run/docker.sock on the manager VM, then install the Docker CLI inside the Jenkins container as root.
+Access Jenkins at [http://192.168.56.10:8080](http://192.168.56.10:8080), complete the initial setup, and add your Docker Hub token under Manage Jenkins > Credentials with the ID dockerhub-creds.
+
+Deploy the Initial Swarm Service : 
+Before Jenkins can update a service, the service must exist. Run this once on the manager VM to create the baseline application:
+docker service create --name java-web-app --replicas 3 -p 9090:9090 yourdockerhubuser/simple-java-app:latest
+
+
+Configure the Automated Pipeline : 
+
+In Jenkins, click New Item, name it, and select Pipeline.
+Under Build Triggers, check Build periodically and enter H/15 * * * * (this tells Jenkins to check GitHub every 15 minutes).
+Under Pipeline, select Pipeline script from SCM, choose Git, and paste your GitHub repository URL.
+Save and click Build Now to run the first test manually.
