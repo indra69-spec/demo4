@@ -1,0 +1,20 @@
+. Docker Hub Access Token (For Jenkins)
+For Jenkins to push your built Java image to Docker Hub, you need a Docker Hub token. Do not use your actual account password in Jenkins; use an access token instead.
+
+Steps to generate:
+
+Log in to Docker Hub in your browser.
+
+Click your profile picture in the top right and select Account settings.
+
+Go to the Security tab on the left menu.
+
+Click New Access Token.
+
+Give it a description (e.g., "Jenkins Pipeline").
+
+Set Access permissions to Read & Write.
+
+Click Generate.
+
+Copy this token. In Jenkins, go to Manage Jenkins > Credentials > System > Global credentials > Add Credentials. Select "Username with password", enter your Docker Hub username, and paste this token as the password. Name the ID dockerhub-creds.
