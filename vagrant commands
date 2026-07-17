@@ -1,0 +1,44 @@
+# 1. Create project directory and initialize Vagrant
+mkdir -p ~/docker-swarm-vms
+cd ~/docker-swarm-vms
+
+# 2. Create the Vagrantfile (Copy the contents provided below into this file)
+nano Vagrantfile
+
+# 3. Boot up the VMs (Manager and 2 Workers)
+vagrant up
+
+# 4. SSH into Manager VM, install Docker, and initialize Swarm
+vagrant ssh manager-vm
+sudo apt update && sudo apt install -y docker.io
+sudo systemctl enable docker && sudo systemctl start docker
+sudo usermod -aG docker vagrant
+docker swarm init --advertise-addr 192.168.56.10
+
+# Note the join token output from the previous command. Exit the manager.
+exit
+
+# 5. SSH into Worker 1, install Docker, and join Swarm
+vagrant ssh worker1-vm
+sudo apt update && sudo apt install -y docker.io
+sudo systemctl enable docker && sudo systemctl start docker
+sudo usermod -aG docker vagrant
+# Replace SWMTKN-... with your actual token
+sudo docker swarm join --token SWMTKN-1-xxxx 192.168.56.10:2377
+exit
+
+# 6. SSH into Worker 2, install Docker, and join Swarm
+vagrant ssh worker2-vm
+sudo apt update && sudo apt install -y docker.io
+sudo systemctl enable docker && sudo systemctl start docker
+sudo usermod -aG docker vagrant
+# Replace SWMTKN-... with your actual token
+sudo docker swarm join --token SWMTKN-1-xxxx 192.168.56.10:2377
+exit
+
+# 1. Create the project structure
+mkdir -p simple-java-app/src/main/java/com/example
+cd simple-java-app
+
+# 2. Create the necessary files (Copy contents below into these files)
+touch pom.xml src/main/java/com/example/App.java Dockerfile Jenkinsfile
