@@ -1,0 +1,59 @@
+pipeline {
+    agent any
+    
+    // Checks GitHub for changes and builds every 15 minutes automatically
+    triggers {
+        cron('H/15 * * * *')
+    }
+
+    environment {
+        // This links to the credentials you create in Jenkins UI (Manage Jenkins -> Credentials)
+        DOCKER_CREDS = credentials('dockerhub-creds') 
+        
+        // IMPORTANT: Replace 'yourdockerhubuser' with your actual Docker Hub username
+        IMAGE_NAME = "yourdockerhubuser/simple-java-app" 
+        TAG = "${env.BUILD_ID}"
+    }
+
+    stages {
+        stage('Checkout Code') {
+            steps {
+                checkout scm
+            }
+        }
+        
+        stage('Build & Tag Image') {
+            steps {
+                // Build the image using the Dockerfile
+                sh 'docker build -t $IMAGE_NAME:$TAG .'
+                // Tag it as latest as well
+                sh 'docker tag $IMAGE_NAME:$TAG $IMAGE_NAME:latest'
+            }
+        }
+        
+        stage('Push to Docker Hub') {
+            steps {
+                // Securely login to Docker Hub
+                sh 'echo $DOCKER_CREDS_PSW | docker login -u $DOCKER_CREDS_USR --password-stdin'
+                // Push both the numbered version and the latest version
+                sh 'docker push $IMAGE_NAME:$TAG'
+                sh 'docker push $IMAGE_NAME:latest'
+            }
+        }
+        
+        stage('Deploy to Swarm') {
+            steps {
+                // Tell Docker Swarm to pull the new image and update the running containers
+                sh 'docker service update --image $IMAGE_NAME:$TAG java-web-app'
+            }
+        }
+    }
+    
+    // This runs no matter if the build succeeds or fails
+    post {
+        always {
+            // Log out to secure credentials (|| true prevents it from failing the whole build if it errors)
+            sh 'docker logout || true'
+        }
+    }
+}
