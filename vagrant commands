@@ -86,3 +86,19 @@ Go back to your manager terminal tab and run:
 
 docker service ps java-web-app
 
+1. Fix the Jenkins Environment (Run on manager-vm)
+Before you run your pipeline in Jenkins, you must give the Jenkins container the Docker command and the right permissions. Run these commands on your manager-vm:
+
+Bash
+# 1. Give Jenkins permission to use the host's Docker socket
+sudo chmod 666 /var/run/docker.sock
+
+# 2. Log into the Jenkins container as the root user
+docker exec -u root -it jenkins /bin/bash
+
+# 3. Inside the container, install the Docker CLI
+apt-get update && apt-get install -y docker.io
+
+# 4. Exit the container
+exit
+
