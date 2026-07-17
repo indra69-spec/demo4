@@ -45,3 +45,6 @@ cd simple-java-app
 
 # 2. Create the necessary files (Copy contents below into these files)
 touch pom.xml src/main/java/com/example/App.java Dockerfile Jenkinsfile
+
+after docker :
+docker service create --name java-web-app --replicas 3 -p 9090:9090 yourdockerhubuser/simple-java-app:latest
