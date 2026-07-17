@@ -36,8 +36,11 @@ sudo usermod -aG docker vagrant
 sudo docker swarm join --token SWMTKN-1-xxxx 192.168.56.10:2377
 exit
 
-# 1. Create the project structure
-mkdir -p simple-java-app/src/main/java/com/example
+mkdir -p ~/simple-java-app/src/main/java/com/example
+cd ~/simple-java-app
+
+# 2. Create the files
+touch pom.xml src/main/java/com/example/App.java Dockerfile
 cd simple-java-app
 
 # 2. Create the necessary files (Copy contents below into these files)
