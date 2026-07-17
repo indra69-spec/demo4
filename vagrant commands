@@ -43,8 +43,19 @@ cd ~/simple-java-app
 touch pom.xml src/main/java/com/example/App.java Dockerfile
 cd simple-java-app
 
-# 2. Create the necessary files (Copy contents below into these files)
-touch pom.xml src/main/java/com/example/App.java Dockerfile Jenkinsfile
-
 after docker :
 docker service create --name java-web-app --replicas 3 -p 9090:9090 yourdockerhubuser/simple-java-app:latest
+
+# 1. Give Jenkins permission to use the host's Docker socket
+sudo chmod 666 /var/run/docker.sock
+
+# 2. Log into the Jenkins container as the root user
+docker exec -u root -it jenkins /bin/bash
+
+# 3. Inside the container, install the Docker CLI
+apt-get update && apt-get install -y docker.io
+
+# 4. Exit the container
+exit
+touch pom.xml src/main/java/com/example/App.java Dockerfile Jenkinsfile
+
