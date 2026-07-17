@@ -71,3 +71,10 @@ Kind: Username with password
 Username: indrajit
 Password: your Docker Hub token
 ID: dockerhub-creds
+
+after running jenkins : 
+docker images | grep demo2
+kubectl get pods
+kubectl get deployments
+kubectl get svc demo2-service
+minikube service demo2-service --url
