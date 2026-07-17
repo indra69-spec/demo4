@@ -67,16 +67,22 @@ cd simple-java-app
 after docker :
 docker service create --name java-web-app --replicas 3 -p 9090:9090 yourdockerhubuser/simple-java-app:latest
 
-# 1. Give Jenkins permission to use the host's Docker socket
-sudo chmod 666 /var/run/docker.sock
+at last :
+cd ~/docker-swarm-vms
+vagrant status
+vagrant ssh manager-vm
+docker node ls
+docker service ps java-web-app
+http://192.168.56.10:9090
 
-# 2. Log into the Jenkins container as the root user
-docker exec -u root -it jenkins /bin/bash
+Open a new terminal tab on your laptop (don't close the manager tab).
 
-# 3. Inside the container, install the Docker CLI
-apt-get update && apt-get install -y docker.io
+Stop one of the workers:
 
-# 4. Exit the container
-exit
-touch pom.xml src/main/java/com/example/App.java Dockerfile Jenkinsfile
+cd ~/docker-swarm-vms
+vagrant halt worker1-vm
+
+Go back to your manager terminal tab and run:
+
+docker service ps java-web-app
 
