@@ -2,57 +2,63 @@ pipeline {
     agent any
 
     triggers {
-        cron('H/10 * * * *')
+        cron('H/15 * * * *')
     }
 
-    tools {
-        maven 'Maven'
-        jdk 'JDK21'
+    environment {
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub-creds')
+        IMAGE_NAME = "indrajit/demo2"
+        IMAGE_TAG = "${BUILD_NUMBER}"
     }
+
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'master', url: 'https://github.com/indrajitgupta1620-hub/Demo2.git'
+                git branch: 'main', url: 'https://github.com/indrajitgupta1620-hub/Demo2.git'
             }
         }
+
         stage('Build') {
             steps {
-                sh 'mvn compile'
+                sh 'mvn clean package -DskipTests'
             }
         }
+
         stage('Test') {
             steps {
                 sh 'mvn test'
             }
-            post {
-                always {
-                    junit allowEmptyResults: true, testResults: 'target/surefire-reports/*.xml'
-                }
-            }
         }
-        stage('Package') {
-            steps {
-                sh 'mvn package -DskipTests'
-            }
-        }
+
         stage('Docker Build') {
             steps {
-                sh 'docker build -t indrajitgupta/demo2-app:latest .'
+                sh 'docker build -t $IMAGE_NAME:$IMAGE_TAG -t $IMAGE_NAME:latest .'
             }
         }
+
         stage('Docker Push') {
             steps {
-                sh 'docker push indrajitgupta/demo2-app:latest'
+                sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+                sh 'docker push $IMAGE_NAME:$IMAGE_TAG'
+                sh 'docker push $IMAGE_NAME:latest'
             }
         }
-        stage('Deploy to Swarm') {
+
+        stage('Deploy to Kubernetes') {
             steps {
-                sh 'docker service update --image indrajitgupta/demo2-app:latest demo2-service'
+                sh 'kubectl apply -f k8s/'
+                sh 'kubectl set image deployment/demo2-deployment demo2=$IMAGE_NAME:$IMAGE_TAG'
+                sh 'kubectl rollout status deployment/demo2-deployment'
             }
         }
     }
+
     post {
-        success { echo 'Pipeline succeeded!' }
-        failure { echo 'Pipeline failed!' }
+        success {
+            echo 'Pipeline completed successfully!'
+        }
+        failure {
+            echo 'Pipeline failed. Check logs.'
+        }
     }
 }
