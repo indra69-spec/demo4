@@ -1,61 +1,17 @@
-cd "C:\Users\Indrajit Gupta\IdeaProjects\Demo2"
+sudo apt update
+sudo apt install openjdk-21-jdk maven git docker.io -y
+java -version
+mvn -version
+docker --version
 
-git init
-git add .
-git commit -m "Initial commit"
+mvn archetype:generate -DgroupId=org.example -DartifactId=Demo2 \
+  -DarchetypeArtifactId=maven-archetype-quickstart \
+  -DarchetypeVersion=1.4 -DinteractiveMode=false
 
-git remote add origin https://github.com/indrajitgupta1620-hub/Demo2.git
-git branch -M master
-git push -u origin master
+cd Demo2
 
-git add .
-git commit -m "your message"
-git push origin master
-
-mvn compile
-mvn test
-mvn package -DskipTests
-
-docker build -t indrajitgupta/demo2-app:latest .
-docker login
-docker push indrajitgupta/demo2-app:latest
-docker run --rm indrajitgupta/demo2-app:latest
-docker swarm init
-docker service create \
-  --name demo2-service \
-  --replicas 3 \
-  --publish published=8080,target=8080 \
-  indrajitgupta/demo2-app:latest
-
-  docker service ls
-  docker service ps demo2-service
-
-9. View output / logs
-  docker service logs demo2-service
-  docker service logs -f demo2-service
-  docker logs <container-id>
-  docker logs -f <container-id>
-  docker exec -it <container-id> sh
-
-  10. Update after code changes (full redeploy cycle)
-  mvn package -DskipTests
-  docker build -t indrajitgupta/demo2-app:latest .
-  docker push indrajitgupta/demo2-app:latest
-  docker service update --image indrajitgupta/projectname-app:latest projectname-service
+find . -name "*.java"
+This should show src/main/java/org/example/App.java. If it shows a different class name, note it — you'll swap it into pom.xml 
 
 
-minikube start
-minikube status
-kubectl create deployment demo2-deployment --image=indrajitgupta/demo2-app:latest
-kubectl expose deployment demo2-deployment --type=NodePort --port=8080
-kubectl scale deployment demo2-deployment --replicas=3
-kubectl get deployments
-kubectl get pods
-kubectl get services
-minikube service demo2-deployment
-kubectl logs -l app=demo2-deployment
 
-kubectl delete service demo2-deployment
-kubectl delete deployment demo2-deployment
-minikube stop
-minikube delete   # completely removes the cluster
