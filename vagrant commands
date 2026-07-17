@@ -8,6 +8,27 @@ nano Vagrantfile
 # 3. Boot up the VMs (Manager and 2 Workers)
 vagrant up
 
+if you get error:
+
+Blacklist KVM modules
+sudo nano /etc/modprobe.d/blacklist-kvm.conf
+Add:
+blacklist kvm
+blacklist kvm_intel
+
+blacklist kvm_amd
+Save & exit.
+Update initramfs and reboot
+sudo update-initramfs -u
+sudo reboot
+After reboot:
+lsmod | grep kvm
+output: should show nothing.
+
+Then retry
+cd ~/docker-swarm-vms
+vagrant up
+
 # 4. SSH into Manager VM, install Docker, and initialize Swarm
 vagrant ssh manager-vm
 sudo apt update && sudo apt install -y docker.io
