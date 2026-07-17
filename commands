@@ -13,5 +13,8 @@ cd Demo2
 find . -name "*.java"
 This should show src/main/java/org/example/App.java. If it shows a different class name, note it — you'll swap it into pom.xml 
 
-
+mvn clean package
+ls target/
+java -jar target/demo2.jar
+This must print output with no errors before moving forward. If App.java prints Hello World!, you'll see that.
 
